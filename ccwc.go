@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"strings"
 )
 
 func printError(message string) {
@@ -30,15 +31,17 @@ func isInSlice(elem interface{}, slice interface{}) bool {
 func main() {
 	bytesParameters := []string{"-c", "--bytes"}
 	linesParameters := []string{"-l", "--lines"}
+	wordsParameters := []string{"-w", "--words"}
 
-	validParameters := append(bytesParameters, linesParameters...)
+	validParameters := append(append(bytesParameters, linesParameters...), wordsParameters...)
 
 	parameters := os.Args[1:]
 	if len(parameters) != 2 || !isInSlice(parameters[0], validParameters) {
-		printError("Usage: ccwc [options] [filepath]")
+		printError("Usage: ccwc [option] [filepath]")
 		printError("Options:")
 		printError("   -c, --bytes : Print the number of bytes.")
 		printError("   -l, --lines : Print the number of lines.")
+		printError("   -w, --words : Print the number of words.")
 		return
 	}
 
@@ -55,7 +58,7 @@ func main() {
 		}
 
 		outputValue = fileinfo.Size()
-	} else if isInSlice(parameters[0], linesParameters) {
+	} else if isInSlice(parameters[0], linesParameters) || isInSlice(parameters[0], wordsParameters) {
 		file, err := os.Open(filepath)
 		if err != nil {
 			printError("Error opening file: " + filepath)
@@ -64,11 +67,17 @@ func main() {
 		defer file.Close()
 
 		var lines int64 = 0
+		var words int = 0
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			lines += 1
+			words += len(strings.Fields(scanner.Text()))
 		}
-		outputValue = lines
+		if isInSlice(parameters[0], linesParameters) {
+			outputValue = lines
+		} else if isInSlice(parameters[0], wordsParameters) {
+			outputValue = int64(words)
+		}
 
 		if err := scanner.Err(); err != nil {
 			printError("Error reading file:" + filepath)
@@ -77,7 +86,4 @@ func main() {
 	}
 
 	fmt.Printf("%8d %s\n", outputValue, filepath)
-
-	/*
-	 */
 }
