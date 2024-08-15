@@ -44,7 +44,7 @@ func printHelpMessage() {
 	printError("   -w, --words : Print the number of words.")
 	printError("   -m, --chars : Print the number of chars.")
 
-	return
+	os.Exit(0)
 }
 
 func calculateStats(reader bufio.Reader) (stats, error) {
@@ -105,7 +105,6 @@ func main() {
 			flagChars = true
 		} else if isInSlice(param, helpParameters) {
 			printHelpMessage()
-			return
 		} else {
 			filepaths = append(filepaths, param)
 		}
@@ -126,7 +125,8 @@ func main() {
 
 		if err != nil {
 			printError("Error reading from stdin")
-			return
+
+			os.Exit(1)
 		}
 
 		if flagLines {
@@ -147,7 +147,7 @@ func main() {
 
 		fmt.Println(output)
 
-		return
+		os.Exit(0)
 	}
 
 	for _, filepath := range filepaths {
@@ -157,14 +157,14 @@ func main() {
 
 		if err != nil {
 			printError("Error reading file: " + filepath)
-			return
+			os.Exit(2)
 		}
 
 		calculations, err := calculateStats(*bufio.NewReader(file))
 
 		if err != nil {
 			printError("Error reading file: " + filepath)
-			return
+			os.Exit(2)
 		}
 
 		if flagLines {
@@ -185,5 +185,7 @@ func main() {
 
 		fmt.Println(output, filepath)
 	}
+
+	os.Exit(0)
 
 }

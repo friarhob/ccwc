@@ -83,6 +83,14 @@ This is a Go study project based on the [Coding Challenges](https://codingchalle
 
 _*the output order will always be lines, words, bytes and chars_
 
+## Exit Codes
+
+Code | Description | Obs.
+:-:|---|---
+0 | No errors | also returns when `--help` is called
+1 | Error reading from stdin |
+2 | Error reading from file |
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
