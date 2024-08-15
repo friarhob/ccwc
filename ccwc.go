@@ -32,8 +32,9 @@ func main() {
 	bytesParameters := []string{"-c", "--bytes"}
 	linesParameters := []string{"-l", "--lines"}
 	wordsParameters := []string{"-w", "--words"}
+	charsParameters := []string{"-m", "--chars"}
 
-	validParameters := append(append(bytesParameters, linesParameters...), wordsParameters...)
+	validParameters := append(append(append(bytesParameters, linesParameters...), wordsParameters...), charsParameters...)
 
 	parameters := os.Args[1:]
 	if len(parameters) != 2 || !isInSlice(parameters[0], validParameters) {
@@ -42,6 +43,7 @@ func main() {
 		printError("   -c, --bytes : Print the number of bytes.")
 		printError("   -l, --lines : Print the number of lines.")
 		printError("   -w, --words : Print the number of words.")
+		printError("   -m, --chars : Print the number of chars.")
 		return
 	}
 
@@ -53,7 +55,7 @@ func main() {
 
 		fileinfo, err := os.Stat(filepath)
 		if err != nil {
-			printError("Error reading file:" + filepath)
+			printError("Error reading file: " + filepath)
 			return
 		}
 
@@ -68,11 +70,15 @@ func main() {
 
 		var lines int64 = 0
 		var words int = 0
+
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
+			line := scanner.Text()
+
 			lines += 1
-			words += len(strings.Fields(scanner.Text()))
+			words += len(strings.Fields(line))
 		}
+
 		if isInSlice(parameters[0], linesParameters) {
 			outputValue = lines
 		} else if isInSlice(parameters[0], wordsParameters) {
@@ -80,9 +86,32 @@ func main() {
 		}
 
 		if err := scanner.Err(); err != nil {
-			printError("Error reading file:" + filepath)
+			printError("Error reading file: " + filepath)
 			return
 		}
+	} else if isInSlice(parameters[0], charsParameters) {
+		file, err := os.Open(filepath)
+		if err != nil {
+			printError("Error opening file: " + filepath)
+			return
+		}
+		defer file.Close()
+
+		var chars int64 = 0
+
+		scanner := bufio.NewScanner(file)
+		scanner.Split(bufio.ScanRunes)
+		for scanner.Scan() {
+			chars += 1
+		}
+
+		outputValue = chars
+
+		if err := scanner.Err(); err != nil {
+			printError("Error reading file: " + filepath)
+			return
+		}
+
 	}
 
 	fmt.Printf("%8d %s\n", outputValue, filepath)
