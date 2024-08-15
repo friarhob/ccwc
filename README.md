@@ -10,10 +10,11 @@ This is a Go study project based on the [Coding Challenges](https://codingchalle
 - **Lines**: Counts the number of lines in a file.
 - **Words**: Counts the number of words in a file.
 - **Chars**: Counts the number of words in a file.
+- **Supports multiple files**: Processes multiple files in one command.
+
 
 ### To be implemented
 - **Standard Input**: Reads from standard input if no file is provided.
-- **Supports multiple files**: Processes multiple files in one command.
 
 
 ## Installation
@@ -31,7 +32,7 @@ This is a Go study project based on the [Coding Challenges](https://codingchalle
 
 ## Usage
    ```bash
-   ccwc [options] [filepath]
+   ccwc [options] [filepaths]
    ```
 
 ### Options
@@ -40,8 +41,6 @@ This is a Go study project based on the [Coding Challenges](https://codingchalle
 - `-w`, `--words`: Print the number of words.
 - `-m`, `--chars`: Print the number of chars (considers encoding, may differ from `-c`).
 - `-h`, `--help`: Display help message.
-
-#### To be implemented
 
 ### Examples
 
@@ -75,14 +74,14 @@ This is a Go study project based on the [Coding Challenges](https://codingchalle
    ccwc example.txt
    ```
 
-_*the output order will always be lines, words, bytes and chars_
-
-#### To be implemented
-
 1. **Count for multiple files:**
    ```bash
    ccwc file1.txt file2.txt
    ```
+
+_*the output order will always be lines, words, bytes and chars_
+
+#### To be implemented
 
 1. **Use with standard input:**
    ```bash

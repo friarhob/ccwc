@@ -29,7 +29,7 @@ func isInSlice(elem interface{}, slice interface{}) bool {
 }
 
 func printHelpMessage() {
-	printError("Usage: ccwc [options] [filepath]")
+	printError("Usage: ccwc [options] [filepaths]")
 	printError("Options:")
 	printError("   -c, --bytes : Print the number of bytes.")
 	printError("   -l, --lines : Print the number of lines.")
@@ -109,7 +109,7 @@ func main() {
 
 	parameters := os.Args[1:]
 
-	var filepath string
+	var filepaths []string
 
 	for _, param := range parameters {
 		if isInSlice(param, bytesParameters) {
@@ -124,7 +124,7 @@ func main() {
 			printHelpMessage()
 			return
 		} else {
-			filepath = param
+			filepaths = append(filepaths, param)
 		}
 	}
 
@@ -134,43 +134,52 @@ func main() {
 		flagBytes = true
 	}
 
-	var output string
-
-	if flagLines || flagWords {
-		lines, words, err := calculateLinesWords(filepath)
-
-		if err != nil {
-			printError("Error reading file " + filepath)
-			return
-		}
-
-		if flagLines {
-			output += fmt.Sprintf(" %7d", lines)
-		}
-		if flagWords {
-			output += fmt.Sprintf(" %7d", words)
-		}
+	if len(filepaths) == 0 {
+		printError("Error: no filepaths specified")
+		printHelpMessage()
+		return
 	}
 
-	if flagBytes {
-		bytes, err := calculateBytes(filepath)
-		if err != nil {
-			printError("Error reading file: " + filepath)
-			return
+	for _, filepath := range filepaths {
+		var output string
+
+		if flagLines || flagWords {
+			lines, words, err := calculateLinesWords(filepath)
+
+			if err != nil {
+				printError("Error reading file " + filepath)
+				return
+			}
+
+			if flagLines {
+				output += fmt.Sprintf(" %7d", lines)
+			}
+			if flagWords {
+				output += fmt.Sprintf(" %7d", words)
+			}
 		}
 
-		output += fmt.Sprintf(" %7d", bytes)
-	}
+		if flagBytes {
+			bytes, err := calculateBytes(filepath)
+			if err != nil {
+				printError("Error reading file: " + filepath)
+				return
+			}
 
-	if flagChars {
-		chars, err := calculateChars(filepath)
-		if err != nil {
-			printError("Error reading file: " + filepath)
-			return
+			output += fmt.Sprintf(" %7d", bytes)
 		}
 
-		output += fmt.Sprintf(" %7d", chars)
+		if flagChars {
+			chars, err := calculateChars(filepath)
+			if err != nil {
+				printError("Error reading file: " + filepath)
+				return
+			}
+
+			output += fmt.Sprintf(" %7d", chars)
+		}
+
+		fmt.Println(output, filepath)
 	}
 
-	fmt.Println(output, filepath)
 }
