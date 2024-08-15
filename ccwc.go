@@ -118,8 +118,35 @@ func main() {
 	}
 
 	if len(filepaths) == 0 {
-		printError("Error: no filepaths specified")
-		printHelpMessage()
+		reader := bufio.NewReader(os.Stdin)
+
+		var output string
+
+		calculations, err := calculateStats(*bufio.NewReader(reader))
+
+		if err != nil {
+			printError("Error reading from stdin")
+			return
+		}
+
+		if flagLines {
+			output += fmt.Sprintf(" %7d", calculations.lines)
+		}
+
+		if flagWords {
+			output += fmt.Sprintf(" %7d", calculations.words)
+		}
+
+		if flagBytes {
+			output += fmt.Sprintf(" %7d", calculations.bytes)
+		}
+
+		if flagChars {
+			output += fmt.Sprintf(" %7d", calculations.chars)
+		}
+
+		fmt.Println(output)
+
 		return
 	}
 

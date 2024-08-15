@@ -79,14 +79,12 @@ This is a Go study project based on the [Coding Challenges](https://codingchalle
    ccwc file1.txt file2.txt
    ```
 
-_*the output order will always be lines, words, bytes and chars_
-
-#### To be implemented
-
 1. **Use with standard input:**
    ```bash
    echo "Hello World" | ccwc
    ```
+
+_*the output order will always be lines, words, bytes and chars_
 
 ## License
 
