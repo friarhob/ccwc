@@ -35,9 +35,9 @@ This is a Go study project based on the [Coding Challenges](https://codingchalle
 
 ### Options
 - `-c, --bytes : Print the number of bytes.`
+- `-l, --lines : Print the number of lines.`
 
 #### To be implemented
-- `-l, --lines : Print the number of lines.`
 - `-w, --words : Print the number of words.`
 - `-h, --help : Display help message.`
 
@@ -48,15 +48,16 @@ This is a Go study project based on the [Coding Challenges](https://codingchalle
    ccwc -c example.txt
    ```
 
+1. **Count lines only:**
+   ```bash
+   ccwc -l example.txt
+   ```
+
 #### To be implemented
 
 1. **Count lines, words, and bytes in a file:**
    ```bash
    ccwc example.txt
-   ```
-1. **Count lines only:**
-   ```bash
-   ccwc -l example.txt
    ```
 
 1. **Count words only:**

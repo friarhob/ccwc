@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "bufio"
+	"bufio"
 	"fmt"
 	"os"
 	"reflect"
@@ -28,43 +28,56 @@ func isInSlice(elem interface{}, slice interface{}) bool {
 }
 
 func main() {
-	validParameters := []string{"-c", "--bytes"}
+	bytesParameters := []string{"-c", "--bytes"}
+	linesParameters := []string{"-l", "--lines"}
+
+	validParameters := append(bytesParameters, linesParameters...)
 
 	parameters := os.Args[1:]
 	if len(parameters) != 2 || !isInSlice(parameters[0], validParameters) {
 		printError("Usage: ccwc [options] [filepath]")
 		printError("Options:")
 		printError("   -c, --bytes : Print the number of bytes.")
+		printError("   -l, --lines : Print the number of lines.")
 		return
 	}
 
 	filepath := parameters[len(parameters)-1]
 
-	fileinfo, err := os.Stat(filepath)
-	if err != nil {
-		printError("Error reading file:" + filepath)
-		return
+	var outputValue int64 = 0
+
+	if isInSlice(parameters[0], bytesParameters) {
+
+		fileinfo, err := os.Stat(filepath)
+		if err != nil {
+			printError("Error reading file:" + filepath)
+			return
+		}
+
+		outputValue = fileinfo.Size()
+	} else if isInSlice(parameters[0], linesParameters) {
+		file, err := os.Open(filepath)
+		if err != nil {
+			printError("Error opening file: " + filepath)
+			return
+		}
+		defer file.Close()
+
+		var lines int64 = 0
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			lines += 1
+		}
+		outputValue = lines
+
+		if err := scanner.Err(); err != nil {
+			printError("Error reading file:" + filepath)
+			return
+		}
 	}
 
-	fmt.Printf("%8d %s\n", fileinfo.Size(), filepath)
-
-	return
+	fmt.Printf("%8d %s\n", outputValue, filepath)
 
 	/*
-			file, err := os.Open(filepath)
-			if err != nil {
-				printError("Error opening file: " + filepath)
-				return
-			}
-			defer file.Close()
-
-		    scanner := bufio.NewScanner(file)
-		    for scanner.Scan() {
-		        fmt.Println(scanner.Text()) // Print each line
-		    }
-
-		    if err := scanner.Err(); err != nil {
-		        fmt.Println("Error reading file:", err)
-		    }
-	*/
+	 */
 }
