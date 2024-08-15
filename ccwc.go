@@ -28,30 +28,55 @@ func isInSlice(elem interface{}, slice interface{}) bool {
 	return false
 }
 
+func printHelpMessage() {
+	printError("Usage: ccwc [options] [filepath]")
+	printError("Options:")
+	printError("   -c, --bytes : Print the number of bytes.")
+	printError("   -l, --lines : Print the number of lines.")
+	printError("   -w, --words : Print the number of words.")
+	printError("   -m, --chars : Print the number of chars.")
+
+	return
+}
+
 func main() {
 	bytesParameters := []string{"-c", "--bytes"}
 	linesParameters := []string{"-l", "--lines"}
 	wordsParameters := []string{"-w", "--words"}
 	charsParameters := []string{"-m", "--chars"}
 
-	validParameters := append(append(append(bytesParameters, linesParameters...), wordsParameters...), charsParameters...)
+	calculateBytes := false
+	calculateLines := false
+	calculateWords := false
+	calculateChars := false
 
 	parameters := os.Args[1:]
-	if len(parameters) != 2 || !isInSlice(parameters[0], validParameters) {
-		printError("Usage: ccwc [option] [filepath]")
-		printError("Options:")
-		printError("   -c, --bytes : Print the number of bytes.")
-		printError("   -l, --lines : Print the number of lines.")
-		printError("   -w, --words : Print the number of words.")
-		printError("   -m, --chars : Print the number of chars.")
+
+	if len(parameters) != 2 {
+		printHelpMessage()
 		return
+	}
+
+	for _, param := range parameters {
+		if isInSlice(param, bytesParameters) {
+			calculateBytes = true
+		}
+		if isInSlice(param, linesParameters) {
+			calculateLines = true
+		}
+		if isInSlice(param, wordsParameters) {
+			calculateWords = true
+		}
+		if isInSlice(param, charsParameters) {
+			calculateChars = true
+		}
 	}
 
 	filepath := parameters[len(parameters)-1]
 
 	var outputValue int64 = 0
 
-	if isInSlice(parameters[0], bytesParameters) {
+	if calculateBytes {
 
 		fileinfo, err := os.Stat(filepath)
 		if err != nil {
@@ -60,7 +85,7 @@ func main() {
 		}
 
 		outputValue = fileinfo.Size()
-	} else if isInSlice(parameters[0], linesParameters) || isInSlice(parameters[0], wordsParameters) {
+	} else if calculateLines || calculateWords {
 		file, err := os.Open(filepath)
 		if err != nil {
 			printError("Error opening file: " + filepath)
@@ -79,9 +104,9 @@ func main() {
 			words += len(strings.Fields(line))
 		}
 
-		if isInSlice(parameters[0], linesParameters) {
+		if calculateLines {
 			outputValue = lines
-		} else if isInSlice(parameters[0], wordsParameters) {
+		} else if calculateWords {
 			outputValue = int64(words)
 		}
 
@@ -89,7 +114,7 @@ func main() {
 			printError("Error reading file: " + filepath)
 			return
 		}
-	} else if isInSlice(parameters[0], charsParameters) {
+	} else if calculateChars {
 		file, err := os.Open(filepath)
 		if err != nil {
 			printError("Error opening file: " + filepath)
