@@ -44,6 +44,7 @@ func main() {
 	linesParameters := []string{"-l", "--lines"}
 	wordsParameters := []string{"-w", "--words"}
 	charsParameters := []string{"-m", "--chars"}
+	helpParameters := []string{"-h", "--help"}
 
 	calculateBytes := false
 	calculateLines := false
@@ -69,6 +70,11 @@ func main() {
 		}
 		if isInSlice(param, charsParameters) {
 			calculateChars = true
+		}
+
+		if isInSlice(param, helpParameters) {
+			printHelpMessage()
+			return
 		}
 	}
 

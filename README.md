@@ -31,7 +31,7 @@ This is a Go study project based on the [Coding Challenges](https://codingchalle
 
 ## Usage
    ```bash
-    ccwc [options] [filepath]
+   ccwc [options] [filepath]
    ```
 
 ### Options
@@ -39,9 +39,9 @@ This is a Go study project based on the [Coding Challenges](https://codingchalle
 - `-l, --lines : Print the number of lines.`
 - `-w, --words : Print the number of words.`
 - `-m, --chars : Print the number of chars.`
+- `-h, --help : Display help message.`
 
 #### To be implemented
-- `-h, --help : Display help message.`
 
 ### Examples
 
