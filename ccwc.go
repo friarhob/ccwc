@@ -4,6 +4,7 @@ import (
 	// "bufio"
 	"fmt"
 	"os"
+	"reflect"
 )
 
 func printError(message string) {
@@ -12,10 +13,28 @@ func printError(message string) {
 	return
 }
 
+func isInSlice(elem interface{}, slice interface{}) bool {
+	sliceVal := reflect.ValueOf(slice)
+	if sliceVal.Kind() != reflect.Slice {
+		panic("Provided 'slice' is not a slice")
+	}
+
+	for i := 0; i < sliceVal.Len(); i++ {
+		if reflect.DeepEqual(sliceVal.Index(i).Interface(), elem) {
+			return true
+		}
+	}
+	return false
+}
+
 func main() {
+	validParameters := []string{"-c", "--bytes"}
+
 	parameters := os.Args[1:]
-	if len(parameters) != 2 || parameters[0] != "-c" {
-		printError("Usage: ccwc -c filepath")
+	if len(parameters) != 2 || !isInSlice(parameters[0], validParameters) {
+		printError("Usage: ccwc [options] [filepath]")
+		printError("Options:")
+		printError("   -c, --bytes : Print the number of bytes.")
 		return
 	}
 

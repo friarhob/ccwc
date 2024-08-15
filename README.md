@@ -34,12 +34,11 @@ This is a Go study project based on the [Coding Challenges](https://codingchalle
    ```
 
 ### Options
-- `-c : Print the number of bytes.`
+- `-c, --bytes : Print the number of bytes.`
 
 #### To be implemented
 - `-l, --lines : Print the number of lines.`
 - `-w, --words : Print the number of words.`
-- `--bytes : Print the number of bytes.`
 - `-h, --help : Display help message.`
 
 ### Examples
