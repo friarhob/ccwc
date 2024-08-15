@@ -3,10 +3,18 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"reflect"
-	"strings"
+	"unicode"
 )
+
+type stats struct {
+	bytes int64
+	words int64
+	lines int64
+	chars int64
+}
 
 func printError(message string) {
 	fmt.Fprintln(os.Stderr, message)
@@ -39,60 +47,35 @@ func printHelpMessage() {
 	return
 }
 
-func calculateLinesWords(filepath string) (int64, int64, error) {
-	file, err := os.Open(filepath)
-	if err != nil {
-		return -1, -1, err
+func calculateStats(reader bufio.Reader) (stats, error) {
+	var results stats
+
+	var prevChar rune = rune(0)
+
+	for {
+		curChar, bytesRead, err := reader.ReadRune()
+
+		if err != nil {
+			if err == io.EOF {
+				return results, nil
+			}
+
+			return results, err
+		}
+
+		if curChar == '\n' {
+			results.lines += 1
+		}
+
+		if (unicode.IsSpace(prevChar) || prevChar == rune(0)) && !unicode.IsSpace(curChar) {
+			results.words += 1
+		}
+
+		results.bytes += int64(bytesRead)
+		results.chars += 1
+
+		prevChar = curChar
 	}
-	defer file.Close()
-
-	var lines int64 = 0
-	var words int64 = 0
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		lines += 1
-		words += int64(len(strings.Fields(line)))
-	}
-
-	if err := scanner.Err(); err != nil {
-		return -1, -1, err
-	}
-
-	return lines, words, nil
-}
-
-func calculateBytes(filepath string) (int64, error) {
-	fileinfo, err := os.Stat(filepath)
-	if err != nil {
-		return -1, err
-	}
-
-	return fileinfo.Size(), nil
-}
-
-func calculateChars(filepath string) (int64, error) {
-	file, err := os.Open(filepath)
-	if err != nil {
-		return -1, err
-	}
-	defer file.Close()
-
-	var chars int64 = 0
-
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanRunes)
-	for scanner.Scan() {
-		chars += 1
-	}
-
-	if err := scanner.Err(); err != nil {
-		return -1, err
-	}
-
-	return chars, nil
 }
 
 func main() {
@@ -143,40 +126,34 @@ func main() {
 	for _, filepath := range filepaths {
 		var output string
 
-		if flagLines || flagWords {
-			lines, words, err := calculateLinesWords(filepath)
+		file, err := os.Open(filepath)
 
-			if err != nil {
-				printError("Error reading file " + filepath)
-				return
-			}
+		if err != nil {
+			printError("Error reading file: " + filepath)
+			return
+		}
 
-			if flagLines {
-				output += fmt.Sprintf(" %7d", lines)
-			}
-			if flagWords {
-				output += fmt.Sprintf(" %7d", words)
-			}
+		calculations, err := calculateStats(*bufio.NewReader(file))
+
+		if err != nil {
+			printError("Error reading file: " + filepath)
+			return
+		}
+
+		if flagLines {
+			output += fmt.Sprintf(" %7d", calculations.lines)
+		}
+
+		if flagWords {
+			output += fmt.Sprintf(" %7d", calculations.words)
 		}
 
 		if flagBytes {
-			bytes, err := calculateBytes(filepath)
-			if err != nil {
-				printError("Error reading file: " + filepath)
-				return
-			}
-
-			output += fmt.Sprintf(" %7d", bytes)
+			output += fmt.Sprintf(" %7d", calculations.bytes)
 		}
 
 		if flagChars {
-			chars, err := calculateChars(filepath)
-			if err != nil {
-				printError("Error reading file: " + filepath)
-				return
-			}
-
-			output += fmt.Sprintf(" %7d", chars)
+			output += fmt.Sprintf(" %7d", calculations.chars)
 		}
 
 		fmt.Println(output, filepath)
