@@ -39,6 +39,62 @@ func printHelpMessage() {
 	return
 }
 
+func calculateLinesWords(filepath string) (int64, int64, error) {
+	file, err := os.Open(filepath)
+	if err != nil {
+		return -1, -1, err
+	}
+	defer file.Close()
+
+	var lines int64 = 0
+	var words int64 = 0
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		lines += 1
+		words += int64(len(strings.Fields(line)))
+	}
+
+	if err := scanner.Err(); err != nil {
+		return -1, -1, err
+	}
+
+	return lines, words, nil
+}
+
+func calculateBytes(filepath string) (int64, error) {
+	fileinfo, err := os.Stat(filepath)
+	if err != nil {
+		return -1, err
+	}
+
+	return fileinfo.Size(), nil
+}
+
+func calculateChars(filepath string) (int64, error) {
+	file, err := os.Open(filepath)
+	if err != nil {
+		return -1, err
+	}
+	defer file.Close()
+
+	var chars int64 = 0
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanRunes)
+	for scanner.Scan() {
+		chars += 1
+	}
+
+	if err := scanner.Err(); err != nil {
+		return -1, err
+	}
+
+	return chars, nil
+}
+
 func main() {
 	bytesParameters := []string{"-c", "--bytes"}
 	linesParameters := []string{"-l", "--lines"}
@@ -46,10 +102,10 @@ func main() {
 	charsParameters := []string{"-m", "--chars"}
 	helpParameters := []string{"-h", "--help"}
 
-	calculateBytes := false
-	calculateLines := false
-	calculateWords := false
-	calculateChars := false
+	flagBytes := false
+	flagLines := false
+	flagWords := false
+	flagChars := false
 
 	parameters := os.Args[1:]
 
@@ -57,13 +113,13 @@ func main() {
 
 	for _, param := range parameters {
 		if isInSlice(param, bytesParameters) {
-			calculateBytes = true
+			flagBytes = true
 		} else if isInSlice(param, linesParameters) {
-			calculateLines = true
+			flagLines = true
 		} else if isInSlice(param, wordsParameters) {
-			calculateWords = true
+			flagWords = true
 		} else if isInSlice(param, charsParameters) {
-			calculateChars = true
+			flagChars = true
 		} else if isInSlice(param, helpParameters) {
 			printHelpMessage()
 			return
@@ -72,79 +128,48 @@ func main() {
 		}
 	}
 
-	if !calculateBytes && !calculateChars && !calculateLines && !calculateWords {
-		calculateLines = true
-		calculateWords = true
-		calculateBytes = true
+	if !flagBytes && !flagChars && !flagLines && !flagWords {
+		flagLines = true
+		flagWords = true
+		flagBytes = true
 	}
 
 	var output string
 
-	if calculateLines || calculateWords {
-		file, err := os.Open(filepath)
+	if flagLines || flagWords {
+		lines, words, err := calculateLinesWords(filepath)
+
 		if err != nil {
-			printError("Error opening file: " + filepath)
+			printError("Error reading file " + filepath)
 			return
 		}
-		defer file.Close()
 
-		var lines int64 = 0
-		var words int = 0
-
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			line := scanner.Text()
-
-			lines += 1
-			words += len(strings.Fields(line))
-		}
-
-		if calculateLines {
+		if flagLines {
 			output += fmt.Sprintf(" %7d", lines)
 		}
-		if calculateWords {
+		if flagWords {
 			output += fmt.Sprintf(" %7d", words)
 		}
-
-		if err := scanner.Err(); err != nil {
-			printError("Error reading file: " + filepath)
-			return
-		}
 	}
 
-	if calculateBytes {
-
-		fileinfo, err := os.Stat(filepath)
+	if flagBytes {
+		bytes, err := calculateBytes(filepath)
 		if err != nil {
 			printError("Error reading file: " + filepath)
 			return
 		}
 
-		output += fmt.Sprintf(" %7d", fileinfo.Size())
+		output += fmt.Sprintf(" %7d", bytes)
 	}
 
-	if calculateChars {
-		file, err := os.Open(filepath)
+	if flagChars {
+		chars, err := calculateChars(filepath)
 		if err != nil {
-			printError("Error opening file: " + filepath)
+			printError("Error reading file: " + filepath)
 			return
-		}
-		defer file.Close()
-
-		var chars int64 = 0
-
-		scanner := bufio.NewScanner(file)
-		scanner.Split(bufio.ScanRunes)
-		for scanner.Scan() {
-			chars += 1
 		}
 
 		output += fmt.Sprintf(" %7d", chars)
-
-		if err := scanner.Err(); err != nil {
-			printError("Error reading file: " + filepath)
-			return
-		}
 	}
 
 	fmt.Println(output, filepath)
