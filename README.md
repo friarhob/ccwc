@@ -35,11 +35,11 @@ This is a Go study project based on the [Coding Challenges](https://codingchalle
    ```
 
 ### Options
-- `-c, --bytes : Print the number of bytes.`
-- `-l, --lines : Print the number of lines.`
-- `-w, --words : Print the number of words.`
-- `-m, --chars : Print the number of chars.`
-- `-h, --help : Display help message.`
+- `-c`, `--bytes`: Print the number of bytes.
+- `-l`, `--lines`: Print the number of lines.
+- `-w`, `--words`: Print the number of words.
+- `-m`, `--chars`: Print the number of chars (considers encoding, may differ from `-c`).
+- `-h`, `--help`: Display help message.
 
 #### To be implemented
 
@@ -65,12 +65,19 @@ This is a Go study project based on the [Coding Challenges](https://codingchalle
    ccwc -m example.txt
    ```
 
-#### To be implemented
+1. **Count bytes and chars:**
+   ```bash
+   ccwc -c -m example.txt
+   ```
 
 1. **Count lines, words, and bytes in a file:**
    ```bash
    ccwc example.txt
    ```
+
+_*the output order will always be lines, words, bytes and chars_
+
+#### To be implemented
 
 1. **Count for multiple files:**
    ```bash

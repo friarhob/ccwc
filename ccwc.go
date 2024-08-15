@@ -53,45 +53,34 @@ func main() {
 
 	parameters := os.Args[1:]
 
-	if len(parameters) != 2 {
-		printHelpMessage()
-		return
-	}
+	var filepath string
 
 	for _, param := range parameters {
 		if isInSlice(param, bytesParameters) {
 			calculateBytes = true
-		}
-		if isInSlice(param, linesParameters) {
+		} else if isInSlice(param, linesParameters) {
 			calculateLines = true
-		}
-		if isInSlice(param, wordsParameters) {
+		} else if isInSlice(param, wordsParameters) {
 			calculateWords = true
-		}
-		if isInSlice(param, charsParameters) {
+		} else if isInSlice(param, charsParameters) {
 			calculateChars = true
-		}
-
-		if isInSlice(param, helpParameters) {
+		} else if isInSlice(param, helpParameters) {
 			printHelpMessage()
 			return
+		} else {
+			filepath = param
 		}
 	}
 
-	filepath := parameters[len(parameters)-1]
+	if !calculateBytes && !calculateChars && !calculateLines && !calculateWords {
+		calculateLines = true
+		calculateWords = true
+		calculateBytes = true
+	}
 
-	var outputValue int64 = 0
+	var output string
 
-	if calculateBytes {
-
-		fileinfo, err := os.Stat(filepath)
-		if err != nil {
-			printError("Error reading file: " + filepath)
-			return
-		}
-
-		outputValue = fileinfo.Size()
-	} else if calculateLines || calculateWords {
+	if calculateLines || calculateWords {
 		file, err := os.Open(filepath)
 		if err != nil {
 			printError("Error opening file: " + filepath)
@@ -111,16 +100,30 @@ func main() {
 		}
 
 		if calculateLines {
-			outputValue = lines
-		} else if calculateWords {
-			outputValue = int64(words)
+			output += fmt.Sprintf(" %7d", lines)
+		}
+		if calculateWords {
+			output += fmt.Sprintf(" %7d", words)
 		}
 
 		if err := scanner.Err(); err != nil {
 			printError("Error reading file: " + filepath)
 			return
 		}
-	} else if calculateChars {
+	}
+
+	if calculateBytes {
+
+		fileinfo, err := os.Stat(filepath)
+		if err != nil {
+			printError("Error reading file: " + filepath)
+			return
+		}
+
+		output += fmt.Sprintf(" %7d", fileinfo.Size())
+	}
+
+	if calculateChars {
 		file, err := os.Open(filepath)
 		if err != nil {
 			printError("Error opening file: " + filepath)
@@ -136,14 +139,13 @@ func main() {
 			chars += 1
 		}
 
-		outputValue = chars
+		output += fmt.Sprintf(" %7d", chars)
 
 		if err := scanner.Err(); err != nil {
 			printError("Error reading file: " + filepath)
 			return
 		}
-
 	}
 
-	fmt.Printf("%8d %s\n", outputValue, filepath)
+	fmt.Println(output, filepath)
 }
