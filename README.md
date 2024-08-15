@@ -11,9 +11,6 @@ This is a Go study project based on the [Coding Challenges](https://codingchalle
 - **Words**: Counts the number of words in a file.
 - **Chars**: Counts the number of words in a file.
 - **Supports multiple files**: Processes multiple files in one command.
-
-
-### To be implemented
 - **Standard Input**: Reads from standard input if no file is provided.
 
 
