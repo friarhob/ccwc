@@ -154,11 +154,11 @@ func main() {
 		var output string
 
 		file, err := os.Open(filepath)
-
 		if err != nil {
 			printError("Error reading file: " + filepath)
 			os.Exit(2)
 		}
+		defer file.Close()
 
 		calculations, err := calculateStats(*bufio.NewReader(file))
 
